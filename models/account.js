@@ -7,7 +7,7 @@ const con = config.get('dbConfig_UCN');
 const salt = parseInt(config.get('saltRounds'));
 
 class Account {
-    // accountObj: {userEmail, userPassword, userName}
+    // accountObj: {userEmail, userPassword, userName, islandName}
     constructor(accountObj) {
         this.userEmail = accountObj.userEmail;
         this.userPassword = accountObj.userPassword;
