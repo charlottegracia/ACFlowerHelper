@@ -424,6 +424,7 @@ class Flower {
                     SELECT *
                     FROM flowers
                     `);
+
                     result.recordset.forEach(flower => {
                         if(flower.flowerColor == null) {
                             console.log("id: " + flower.flowerId + ", " + flower.flowerType);
@@ -431,6 +432,7 @@ class Flower {
                             console.log("id: " + flower.flowerId + ", " + flower.flowerColor + " " + flower.flowerType);
                         }
                     })
+
                     resolve(result);
 
                 } catch (error) {

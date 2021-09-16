@@ -28,7 +28,7 @@ router.get('/:flowerId', async (req, res) => {
     // › › validate req.params.bookid as bookid
     // › › call await Book.readById(req.params.bookid)
     const {error} = Flower.validate(req.params);
-    if (error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: bookid has to be an integer', errorDetail: error.details[0].message }));
+    if (error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: flowerId has to be an integer', errorDetail: error.details[0].message }));
 
     try {
         const flower = await Flower.readById(req.params.flowerId);
