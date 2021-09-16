@@ -49,10 +49,10 @@ class Account {
                 .max(50)
                 .required(),
             islandName: Joi.string()
-            .alphanum()
-            .min(1)
-            .max(50)
-            .required()
+                .alphanum()
+                .min(1)
+                .max(50)
+                .required()
         });
 
         return schema.validate(accountResponse);
@@ -148,7 +148,7 @@ class Account {
                     }
 
                     const { error } = Account.validateResponse(accountResponse);
-                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account informaion in database.' }
+                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
                     resolve(accountResponse);
 
@@ -202,16 +202,16 @@ class Account {
                             .input('hashedPassword', sql.NVarChar(255), hashedPassword)
                             .input('islandName', sql.NVarChar(50), this.islandName)
                             .query(`
-                        INSERT INTO ACloginUser([userName], [userEmail], [islandName])
-                        VALUES (@userName, @userEmail, @islandName);
+                                INSERT INTO ACloginUser([userName], [userEmail], [islandName])
+                                VALUES (@userName, @userEmail, @islandName);
 
-                        SELECT u.userId, u.userName, u.islandName
-                        FROM ACloginUser u
-                        WHERE u.userId = SCOPE_IDENTITY();
+                                SELECT u.userId, u.userName, u.islandName
+                                FROM ACloginUser u
+                                WHERE u.userId = SCOPE_IDENTITY();
 
-                        INSERT INTO ACloginPassword([passwordValue], [FK_userId])
-                        VALUES (@hashedPassword, SCOPE_IDENTITY());
-                    `);
+                                INSERT INTO ACloginPassword([passwordValue], [FK_userId])
+                                VALUES (@hashedPassword, SCOPE_IDENTITY());
+                            `);
                         console.log(result00);
                         if (!result00.recordset[0]) throw { statusCode: 500, errorMessage: 'Something went wrong, login is not created.' }
 

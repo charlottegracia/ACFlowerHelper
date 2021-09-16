@@ -13,7 +13,7 @@ const config = require('config');
 
 const secret = config.get('jwt_secret_key');
 
-// previously '/'
+// previously '/' LOGGER IND
 router.post('/login', async (req, res) => {
     // res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Expose-Headers', 'x-authenticate-token');
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// previously '/signup'
+// previously '/signup' OPRETTER BRUGER
 router.post('/', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     try {
