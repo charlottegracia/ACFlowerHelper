@@ -99,7 +99,7 @@ class Account {
 
                     // *** static validateResponse(accountResponse)
                     const { error } = Account.validateResponse(accountResponse);
-                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account informaion in database.' }
+                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
                     resolve(accountResponse);
 
@@ -227,7 +227,7 @@ class Account {
                         // *** static validateResponse(accountResponse)
                         const { error } = Account.validateResponse(accountResponse);
                         console.log(error);
-                        if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account informaion in database.' }
+                        if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
                         // previously resolve(user)
                         resolve(accountResponse);
