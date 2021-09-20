@@ -1,12 +1,10 @@
 const sql = require('mssql');
 const config = require('config');
 const Joi = require('joi');
-const bcrypt = require('bcryptjs');
 
 const con = config.get('dbConfig_UCN');
-const salt = parseInt(config.get('saltRounds'));
 
-class Profile {
+class Island {
     constructor(islandFlowerObj) {
         this.userId = islandFlowerObj.userId;
         this.flowerId = islandFlowerObj.flowerId;
@@ -26,7 +24,7 @@ class Profile {
         return schema.validate(islandFlowerObj);
     }
 
-    static validateResponse(flower) {
+    /* static validateResponse(flower) {
         const schema = Joi.object({
             flowerId: Joi.number()
                 .min(1),
@@ -52,13 +50,49 @@ class Profile {
                 .max(255),
         });
 
-        return schema.validate(flower);
+        return schema.validate(flower); 
+    } */
+
+    static checkFlower(islandFlowerObj) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), islandFlowerObj.userId)
+                        .input('flowerId', sql.Int(), islandFlowerObj.flowerId)
+                        .query(`
+                            SELECT i.FK_userId, i.FK_flowerId
+                            FROM islandFlowers i
+                            WHERE i.FK_userId = @userId AND i.FK_flowerId = @flowerId
+                        `);
+
+                    // error contains statusCode: 404 if not found! --> important in create(), see below
+                    /* if (result.recordset.length >= 1) 
+                    if (!result.recordset[0]) {
+                        const flower = addFlower(islandFlowerObj);
+                    }
+ */
+                    if (result.recordset.length >= 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+                    
+                    //const flower = await addFlower(islandFlowerObj);
+                    resolve(islandFlowerObj);
+                    
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
+                sql.close();
+            })();
+        });
     }
 
     static addFlower(islandFlowerObj) {
         return new Promise((resolve, reject) => {
             (async () => {
                 try {
+    
                     const pool = await sql.connect(con);
                     const result = await pool.request()
                         .input('userId', sql.Int(), islandFlowerObj.userId)
@@ -76,14 +110,14 @@ class Profile {
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Flower not found with provided ID.' }
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
 
-                    const flowerResponse = {
+                    /* const flowerResponse = {
                         flowerId: result.recordset[0].flowerId,
                         flowerType: result.recordset[0].flowerType,
                         flowerColor: result.recordset[0].flowerColor,
                         breedingFlower1: result.recordset[0].breedingFlower1,
                         breedingFlower2: result.recordset[0].breedingFlower2,
                         note: result.recordset[0].note
-                    }
+                    } */
                     // check if the format is correct!
                     // will need a proper validate method for that
 
@@ -91,8 +125,8 @@ class Profile {
                     //const { error } = Profile.validateResponse(flowerResponse);
                     //if (error) throw { statusCode: 500, errorMessage: 'Flower not found.' }
 
-                    resolve(flowerResponse);
-
+                    resolve(result.recordset);
+                    
                 } catch (error) {
                     console.log(error);
                     reject(error);
@@ -105,4 +139,4 @@ class Profile {
 
 }
 
-module.exports = Profile;
+module.exports = Island;

@@ -2,7 +2,7 @@ const { Router } = require('express');
 const express = require('express');
 const router = express.Router();
 
-const Profile = require('../models/profile');
+const Island = require('../models/island');
 //const Author = require('../models/author');
 
 // tjek din ø
@@ -25,13 +25,14 @@ router.post('/', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     try {
         // previously Login.validate(req.body)
-        const { error } = Profile.validate(req.body);
+        const { error } = Island.validate(req.body);
         if (error) throw { statusCode: 400, errorMessage: error };
 
         // previously const loginObj = new Login(req.body);
-        const islandFlowerObj = new Profile(req.body);
+        const islandFlowerObj = new Island(req.body);
         // previously const user = await loginObj.create();
-        const flower = await Profile.addFlower(islandFlowerObj);
+        const flowerCheck = await Island.checkFlower(islandFlowerObj);
+        const flower = await Island.addFlower(islandFlowerObj);
 
         // previously user
         return res.send(JSON.stringify(flower));
