@@ -87,7 +87,7 @@ class Account {
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
 
                     const bcrypt_result = await bcrypt.compare(accountObj.userPassword, result.recordset[0].passwordValue);
-                    if (!bcrypt_result) throw { statusCode: 404, errorMessage: 'User not found with provided credentials.' }
+                    if (!bcrypt_result) throw { statusCode: 401, errorMessage: 'User not found with provided credentials.' }
 
                     const accountResponse = {
                         userId: result.recordset[0].userId,
@@ -99,7 +99,7 @@ class Account {
 
                     // *** static validateResponse(accountResponse)
                     const { error } = Account.validateResponse(accountResponse);
-                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account informaion in database.' }
+                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
                     resolve(accountResponse);
 
@@ -178,7 +178,7 @@ class Account {
                     // and do nothing if 404 --> we are good, the user's email is not in the DB yet, can carry on with creating a new account
                     console.log(error);
                     if (!error.statusCode) reject(error);
-                    if (error.statusCode != 404) reject(error);
+                    if (error.statusCode != 409) reject(error);
 
                     // if we made it so far, now we can try-catch what we came here for: create()
                     // yes, WITHIN the catch block!

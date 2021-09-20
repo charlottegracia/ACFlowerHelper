@@ -73,7 +73,7 @@ class Island {
                         const flower = addFlower(islandFlowerObj);
                     }
  */
-                    if (result.recordset.length >= 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+                    if (result.recordset.length >= 1) throw { statusCode: 409, errorMessage: 'Flower is already on island.' }
                     
                     //const flower = await addFlower(islandFlowerObj);
                     resolve();
@@ -108,7 +108,7 @@ class Island {
                     console.log(result);
 
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Flower not found with provided ID.' }
-                    if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+                    if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'An error occurred.' }
 
                     /* const flowerResponse = {
                         flowerId: result.recordset[0].flowerId,

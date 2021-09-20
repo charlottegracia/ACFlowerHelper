@@ -52,7 +52,7 @@ class Flower {
 
         return schema.validate(flowerWannabeeObj);
     }
-
+/* 
     static readAll(authorid) {
         return new Promise((resolve, reject) => {
             (async () => {
@@ -154,7 +154,7 @@ class Flower {
 
             })();
         });
-    }
+    } */
 
     static readById(flowerId) {
         return new Promise((resolve, reject) => {
@@ -175,6 +175,9 @@ class Flower {
 
                             WHERE f.flowerId = @flowerId
                     `)
+                    if (result.length == 0) throw { statusCode: 404, errorMessage: `Flower not found with provided flowerId: ${flowerId}` }
+                    if (result.length > 1) throw { statusCode: 500, errorMessage: `Multiple hits of unique data. Corrupt database, flowerId: ${flowerId}` }
+                    
                     result.recordset.forEach(flower => {
                         if (flower.flowerColor == null){
                             console.log("id: " + flower.flowerId + ", " + flower.flowerType + ". Note: " + flower.note);
@@ -185,7 +188,7 @@ class Flower {
                         }
                     })
                     //console.log(result.recordset.flowerId + result.recordset.flowerColor + result.recordset.flowerType + ": " + result.recordset.note);
-
+                    
                     resolve(result.recordset);
                     /* const books = [];   // this is NOT validated yet
                     let lastBookIndex = -1;
@@ -421,10 +424,12 @@ class Flower {
                     const pool = await sql.connect(con);
                     const result = await pool.request()
                     .query(`
-                    SELECT *
-                    FROM flowers
+                        SELECT *
+                        FROM flowers
                     `);
 
+                    if (!result.recordset[0]) throw { statusCode: 500, errorMessage: `No response from database.` }
+                    
                     result.recordset.forEach(flower => {
                         if(flower.flowerColor == null) {
                             console.log("id: " + flower.flowerId + ", " + flower.flowerType);
