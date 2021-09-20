@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
         // previously const loginObj = new Login(req.body);
         const islandFlowerObj = new Island(req.body);
         // previously const user = await loginObj.create();
-        const flowerCheck = await Island.checkFlower(islandFlowerObj);
+        await Island.checkFlower(islandFlowerObj);
         const flower = await Island.addFlower(islandFlowerObj);
 
         // previously user

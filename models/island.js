@@ -76,7 +76,7 @@ class Island {
                     if (result.recordset.length >= 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
                     
                     //const flower = await addFlower(islandFlowerObj);
-                    resolve(islandFlowerObj);
+                    resolve();
                     
                 } catch (error) {
                     console.log(error);
