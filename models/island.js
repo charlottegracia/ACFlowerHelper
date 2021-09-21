@@ -24,34 +24,33 @@ class Island {
         return schema.validate(islandFlowerObj);
     }
 
-    /* static validateResponse(flower) {
+    static validateResponse(flower) {
         const schema = Joi.object({
             flowerId: Joi.number()
                 .min(1),
             flowerType: Joi.string()
-                .alphanum()
                 .min(1)
                 .max(50),
             flowerColor: Joi.string()
-                .alphanum()
                 .min(1)
-                .max(50),
+                .max(50)
+                .allow(null),
             breedingFlower1: Joi.string()
-                .alphanum()
                 .min(1)
-                .max(50),
+                .max(50)
+                .allow(null),
             breedingFlower2: Joi.string()
-                .alphanum()
                 .min(1)
-                .max(50),
+                .max(50)
+                .allow(null),
             note: Joi.string()
-                .alphanum()
                 .min(1)
-                .max(255),
+                .max(255)
+                .allow(null),
         });
 
-        return schema.validate(flower); 
-    } */
+        return schema.validate(flower);
+    }
 
     static checkFlower(islandFlowerObj) {
         return new Promise((resolve, reject) => {
@@ -151,7 +150,7 @@ class Island {
                         `);
                     console.log(result);
 
-                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Theres no flowers on this island.' }
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'There are no flowers on this island.' }
 
                     let flowers = [];
                     result.recordset.forEach(record => {
@@ -180,13 +179,27 @@ class Island {
                             SELECT *
                             FROM flowers
                             `);
+
                     flowerIdOnIsland.forEach(flowerId => {
                         result.recordset.forEach(flower => {
                             if (flowerId == flower.flowerId) {
+                                const flowerResponse = {
+                                    flowerId: flower.flowerId,
+                                    flowerType: flower.flowerType,
+                                    flowerColor: flower.flowerColor,
+                                    breedingFlower1: flower.breedingFlower1,
+                                    breedingFlower2: flower.breedingFlower2,
+                                    note: flower.note
+                                }
+                                const { error } = Island.validateResponse(flowerResponse);
+                                if (error) throw { statusCode: 500, errorMessage: `Invalid flower with id: ${flower.flowerId}.` }
                                 flowers.push(flower);
                             }
                         })
                     })
+
+
+
                     resolve(flowers);
 
                 } catch (error) {

@@ -3,10 +3,12 @@ const express = require('express');
 const router = express.Router();
 
 const Island = require('../models/island');
+const Account = require('../models/account');
 
 // tjek din ø
 router.get('/:userId', async (req, res) => {
     try {
+        await Account.checkUser(req.params.userId);
         const flowerIdOnIsland = await Island.getFlowerIdOnIsland(req.params.userId);
         console.log(flowerIdOnIsland);
         let flowers = await Island.getFlowersOnIsland(flowerIdOnIsland);

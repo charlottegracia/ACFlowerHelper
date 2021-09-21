@@ -242,6 +242,36 @@ class Account {
             })();
         });
     }
+
+    static checkUser(userId) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), userId)
+                        .query(`
+                            SELECT u.userId
+                            FROM ACloginUser u
+                            WHERE u.userId = @userId
+                        `);
+                    console.log(result);
+
+                    // error contains statusCode: 404 if not found! --> important in create(), see below
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: "User doesn't exist." }
+                    if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+
+                    resolve();
+
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
+                sql.close();
+            })();
+        });
+    }
 }
 
 // previously module.exports = Login;
