@@ -1,7 +1,6 @@
 const sql = require('mssql');
 const config = require('config');
 const Joi = require('joi');
-const Flower = require('./flower');
 
 const con = config.get('dbConfig_UCN');
 
