@@ -1,6 +1,7 @@
 const sql = require('mssql');
 const config = require('config');
 const Joi = require('joi');
+const Flower = require('./flower');
 
 const con = config.get('dbConfig_UCN');
 
@@ -74,10 +75,10 @@ class Island {
                     }
  */
                     if (result.recordset.length >= 1) throw { statusCode: 409, errorMessage: 'Flower is already on island.' }
-                    
+
                     //const flower = await addFlower(islandFlowerObj);
                     resolve();
-                    
+
                 } catch (error) {
                     console.log(error);
                     reject(error);
@@ -92,7 +93,7 @@ class Island {
         return new Promise((resolve, reject) => {
             (async () => {
                 try {
-    
+
                     const pool = await sql.connect(con);
                     const result = await pool.request()
                         .input('userId', sql.Int(), islandFlowerObj.userId)
@@ -126,12 +127,72 @@ class Island {
                     //if (error) throw { statusCode: 500, errorMessage: 'Flower not found.' }
 
                     resolve(result.recordset);
-                    
+
                 } catch (error) {
                     console.log(error);
                     reject(error);
                 }
 
+                sql.close();
+            })();
+        });
+    }
+
+    static getFlowerIdOnIsland(userId) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), userId)
+                        .query(`     
+                            SELECT f.FK_flowerId
+                            FROM islandFlowers f
+                            WHERE f.FK_userId = @userId
+                        `);
+                    console.log(result);
+
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Theres no flowers on this island.' }
+
+                    let flowers = [];
+                    result.recordset.forEach(record => {
+                        flowers.push(record.FK_flowerId);
+                    })
+                    resolve(flowers);
+
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
+                sql.close();
+            })();
+        });
+    }
+
+    static getFlowersOnIsland(flowerIdOnIsland) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    let flowers = [];
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .query(`     
+                            SELECT *
+                            FROM flowers
+                            `);
+                    flowerIdOnIsland.forEach(flowerId => {
+                        result.recordset.forEach(flower => {
+                            if (flowerId == flower.flowerId) {
+                                flowers.push(flower);
+                            }
+                        })
+                    })
+                    resolve(flowers);
+
+                } catch (error) {
+                    reject(error);
+                }
                 sql.close();
             })();
         });
