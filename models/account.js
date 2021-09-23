@@ -87,7 +87,7 @@ class Account {
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
 
                     const bcrypt_result = await bcrypt.compare(accountObj.userPassword, result.recordset[0].passwordValue);
-                    if (!bcrypt_result) throw { statusCode: 404, errorMessage: 'User not found with provided credentials.' }
+                    if (!bcrypt_result) throw { statusCode: 401, errorMessage: 'User not found with provided credentials.' }
 
                     const accountResponse = {
                         userId: result.recordset[0].userId,
@@ -178,7 +178,7 @@ class Account {
                     // and do nothing if 404 --> we are good, the user's email is not in the DB yet, can carry on with creating a new account
                     console.log(error);
                     if (!error.statusCode) reject(error);
-                    if (error.statusCode != 404) reject(error);
+                    if (error.statusCode != 409) reject(error);
 
                     // if we made it so far, now we can try-catch what we came here for: create()
                     // yes, WITHIN the catch block!
@@ -236,6 +236,36 @@ class Account {
                         console.log(error);
                         reject(error);
                     }
+                }
+
+                sql.close();
+            })();
+        });
+    }
+
+    static checkUser(userId) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), userId)
+                        .query(`
+                            SELECT u.userId
+                            FROM ACloginUser u
+                            WHERE u.userId = @userId
+                        `);
+                    console.log(result);
+
+                    // error contains statusCode: 404 if not found! --> important in create(), see below
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: "User doesn't exist." }
+                    if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+
+                    resolve();
+
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
                 }
 
                 sql.close();

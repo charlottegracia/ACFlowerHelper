@@ -38,26 +38,4 @@ router.get('/:flowerId', async (req, res) => {
     }
 });
 
-// opdater din ø ?
-router.put('/:bookid', async (req, res) => {
-    const bookIdValidate = Book.validate(req.params);
-    if (bookIdValidate.error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: bookid has to be an integer', errorDetail: error.details[0].message }));
-
-    const payloadValidate = Book.validate(req.body);
-    if (payloadValidate.error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: Book payload formatted incorrectly', errorDetail: error.details[0].message }));
-
-    try {
-        const oldBook = await Book.readById(req.params.bookid);
-        oldBook.copy(req.body);
-        const book = await oldBook.update();
-        return res.send(JSON.stringify(book));
-
-
-    } catch (err) {
-        return res.status(500).send(JSON.stringify({ errorMessage: err }));
-
-    }
-
-})
-
 module.exports = router;
