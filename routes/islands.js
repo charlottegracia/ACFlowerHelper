@@ -23,25 +23,40 @@ router.get('/:userId', async (req, res) => {
 router.post('/', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     try {
-        // previously Login.validate(req.body)
         const { error } = Island.validate(req.body);
         if (error) throw { statusCode: 400, errorMessage: error };
 
-        // previously const loginObj = new Login(req.body);
         const islandFlowerObj = new Island(req.body);
-        // previously const user = await loginObj.create();
         await Island.checkFlower(islandFlowerObj);
         const flower = await Island.addFlower(islandFlowerObj);
 
-        // previously user
         return res.send(JSON.stringify(flower));
     } catch (err) {
         console.log(err);
-        // need to make the condition check sensible...
         if (!err.statusCode) return res.status(500).send(JSON.stringify({ errorMessage: err }));
         if (err.statusCode != 400) return res.status(err.statusCode).send(JSON.stringify({ errorMessage: err }));
         return res.status(400).send(JSON.stringify({ errorMessage: err.errorMessage.details[0].message }));
     }
 });
+
+router.post('/remove', async (req, res) => {
+    try {
+        const { error } = Island.validate(req.body);
+        if (error) throw { statusCode: 400, errorMessage: error };
+
+        const islandFlowerObj = new Island(req.body);
+        await Island.checkFlowerBeforeDeleting(islandFlowerObj);
+        const flower = await Island.removeFlower(islandFlowerObj);
+
+        return res.send(JSON.stringify(flower));
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) return res.status(500).send(JSON.stringify({ errorMessage: err }));
+        if (err.statusCode != 400) return res.status(err.statusCode).send(JSON.stringify({ errorMessage: err }));
+        return res.status(400).send(JSON.stringify({ errorMessage: err.errorMessage.details[0].message }));
+    }
+
+})
+
 
 module.exports = router;

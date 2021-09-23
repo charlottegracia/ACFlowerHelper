@@ -10,7 +10,6 @@ class Island {
         this.flowerId = islandFlowerObj.flowerId;
     }
 
-    // static validate(accountObj)
     static validate(islandFlowerObj) {
         const schema = Joi.object({
             userId: Joi.number()
@@ -97,7 +96,6 @@ class Island {
                             FROM flowers
                             WHERE @flowerId = flowerId
                         `);
-                    console.log(result);
 
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Flower not found with provided ID.' }
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'An error occurred.' }
@@ -138,7 +136,6 @@ class Island {
                             FROM islandFlowers f
                             WHERE f.FK_userId = @userId
                         `);
-                    console.log(result);
 
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'There are no flowers on this island.' }
 
@@ -199,6 +196,79 @@ class Island {
                 } catch (error) {
                     reject(error);
                 }
+                sql.close();
+            })();
+        });
+    }
+
+    static checkFlowerBeforeDeleting(islandFlowerObj) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), islandFlowerObj.userId)
+                        .input('flowerId', sql.Int(), islandFlowerObj.flowerId)
+                        .query(`
+                            SELECT *
+                            FROM islandFlowers i
+                            WHERE i.FK_userId = @userId AND i.FK_flowerId = @flowerId
+                        `);
+                
+                    if (result.recordset.length == 0) throw { statusCode: 409, errorMessage: 'This flower is not on island.' }
+                    
+                    resolve();
+
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
+                sql.close();
+            })();
+        });
+    }
+
+    static removeFlower(islandFlowerObj) {
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                        .input('userId', sql.Int(), islandFlowerObj.userId)
+                        .input('flowerId', sql.Int(), islandFlowerObj.flowerId)
+                        .query(`
+                            DELETE islandFlowers
+                            WHERE FK_userId = @userId AND FK_flowerId = @flowerId
+
+                            SELECT *
+                            FROM flowers f
+                            WHERE @flowerId = f.flowerId
+                        `);
+
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Flower not found with provided ID.' }
+                    if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'An error occurred.' }
+
+                    const flowerResponse = {
+                        flowerId: result.recordset[0].flowerId,
+                        flowerType: result.recordset[0].flowerType,
+                        flowerColor: result.recordset[0].flowerColor,
+                        breedingFlower1: result.recordset[0].breedingFlower1,
+                        breedingFlower2: result.recordset[0].breedingFlower2,
+                        note: result.recordset[0].note
+                    } 
+
+                    const { error } = Island.validateResponse(flowerResponse);
+                    if (error) throw { statusCode: 500, errorMessage: `Flower is invalid, flower id: ${flowerResponse.flowerId}.` }
+
+                    resolve(result.recordset);
+
+                } catch (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
                 sql.close();
             })();
         });
