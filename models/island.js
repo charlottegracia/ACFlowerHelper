@@ -35,13 +35,13 @@ class Island {
                 .min(1)
                 .max(50)
                 .allow(null),
-            breedingFlower1: Joi.string()
+            breedingFlower1: Joi.number()
+                .integer()
                 .min(1)
-                .max(50)
                 .allow(null),
-            breedingFlower2: Joi.string()
+            breedingFlower2: Joi.number()
+                .integer()
                 .min(1)
-                .max(50)
                 .allow(null),
             note: Joi.string()
                 .min(1)
@@ -61,20 +61,13 @@ class Island {
                         .input('userId', sql.Int(), islandFlowerObj.userId)
                         .input('flowerId', sql.Int(), islandFlowerObj.flowerId)
                         .query(`
-                            SELECT i.FK_userId, i.FK_flowerId
+                            SELECT *
                             FROM islandFlowers i
                             WHERE i.FK_userId = @userId AND i.FK_flowerId = @flowerId
                         `);
-
-                    // error contains statusCode: 404 if not found! --> important in create(), see below
-                    /* if (result.recordset.length >= 1) 
-                    if (!result.recordset[0]) {
-                        const flower = addFlower(islandFlowerObj);
-                    }
- */
+                
                     if (result.recordset.length >= 1) throw { statusCode: 409, errorMessage: 'Flower is already on island.' }
-
-                    //const flower = await addFlower(islandFlowerObj);
+                    
                     resolve();
 
                 } catch (error) {
@@ -109,20 +102,17 @@ class Island {
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'Flower not found with provided ID.' }
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'An error occurred.' }
 
-                    /* const flowerResponse = {
+                    const flowerResponse = {
                         flowerId: result.recordset[0].flowerId,
                         flowerType: result.recordset[0].flowerType,
                         flowerColor: result.recordset[0].flowerColor,
                         breedingFlower1: result.recordset[0].breedingFlower1,
                         breedingFlower2: result.recordset[0].breedingFlower2,
                         note: result.recordset[0].note
-                    } */
-                    // check if the format is correct!
-                    // will need a proper validate method for that
+                    } 
 
-                    // *** static validateResponse(accountResponse)
-                    //const { error } = Profile.validateResponse(flowerResponse);
-                    //if (error) throw { statusCode: 500, errorMessage: 'Flower not found.' }
+                    const { error } = Island.validateResponse(flowerResponse);
+                    if (error) throw { statusCode: 500, errorMessage: `Flower is invalid, flower id: ${flowerResponse.flowerId}.` }
 
                     resolve(result.recordset);
 
@@ -144,7 +134,7 @@ class Island {
                     const result = await pool.request()
                         .input('userId', sql.Int(), userId)
                         .query(`     
-                            SELECT f.FK_flowerId
+                            SELECT *
                             FROM islandFlowers f
                             WHERE f.FK_userId = @userId
                         `);
@@ -154,6 +144,12 @@ class Island {
 
                     let flowers = [];
                     result.recordset.forEach(record => {
+                        const response = {
+                            userId: record.FK_userId,
+                            flowerId: record.FK_flowerId
+                        }
+                        const { error } = Island.validate(response);
+                        if (error) throw { statusCode: 500, errorMessage: `Can't validate user ID: ${response.userId} and flower ID: ${response.flowerId}.` }
                         flowers.push(record.FK_flowerId);
                     })
                     resolve(flowers);
@@ -197,8 +193,6 @@ class Island {
                             }
                         })
                     })
-
-
 
                     resolve(flowers);
 

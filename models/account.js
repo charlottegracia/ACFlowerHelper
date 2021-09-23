@@ -180,10 +180,6 @@ class Account {
                     if (!error.statusCode) reject(error);
                     if (error.statusCode != 409) reject(error);
 
-                    // if we made it so far, now we can try-catch what we came here for: create()
-                    // yes, WITHIN the catch block!
-
-
                     // connect to DB
                     // make a query (INSERT INTO loginUser, SELECT with SCOPE_IDENTITY(), INSERT INTO loginPassword)
                     // if good, we have the userId in the result
@@ -192,7 +188,6 @@ class Account {
                     // if anything wrong throw error and reject with error
                     // CLOSE THE DB CONNECTION
                     try {
-                        // let's generate the hashedPassword
                         const hashedPassword = await bcrypt.hash(this.userPassword, salt);
 
                         const pool = await sql.connect(con);
@@ -215,21 +210,16 @@ class Account {
                         console.log(result00);
                         if (!result00.recordset[0]) throw { statusCode: 500, errorMessage: 'Something went wrong, login is not created.' }
 
-                        // previously user
                         const accountResponse = {
                             userId: result00.recordset[0].userId,
                             userName: result00.recordset[0].userName,
                             islandName: result00.recordset[0].islandName
                         }
-                        // check if the format is correct!
-                        // will need a proper validate method for that
 
-                        // *** static validateResponse(accountResponse)
                         const { error } = Account.validateResponse(accountResponse);
                         console.log(error);
                         if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
-                        // previously resolve(user)
                         resolve(accountResponse);
 
                     } catch (error) {
@@ -251,20 +241,27 @@ class Account {
                     const result = await pool.request()
                         .input('userId', sql.Int(), userId)
                         .query(`
-                            SELECT u.userId
+                            SELECT *
                             FROM ACloginUser u
                             WHERE u.userId = @userId
                         `);
                     console.log(result);
 
-                    // error contains statusCode: 404 if not found! --> important in create(), see below
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: "User doesn't exist." }
                     if (result.recordset.length > 1) throw { statusCode: 500, errorMessage: 'Multiple hits of unique data. Corrupt database.' }
+
+                    const accountResponse = {
+                        userId: result.recordset[0].userId,
+                        userName: result.recordset[0].userName,
+                        islandName: result.recordset[0].islandName
+                    }
+
+                    const { error } = Account.validateResponse(accountResponse);
+                    if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
                     resolve();
 
                 } catch (error) {
-                    console.log(error);
                     reject(error);
                 }
 
