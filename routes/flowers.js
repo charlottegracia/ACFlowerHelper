@@ -31,7 +31,12 @@ router.get('/:flowerId', async (req, res) => {
     if (error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: flowerId has to be an integer', errorDetail: error.details[0].message }));
 
     try {
-        const flower = await Flower.readById(req.params.flowerId);
+        let flower = [];
+        flower[0] = await Flower.readById(req.params.flowerId);
+        if (flower[0].breedingFlower1 != null) {
+            flower[1] = await Flower.findBreedingFlower(flower[0].breedingFlower1);
+            flower[2] = await Flower.findBreedingFlower(flower[0].breedingFlower2);
+        }
         return res.send(JSON.stringify(flower));
     } catch (err) {
         return res.status(500).send(JSON.stringify({ errorMessage: err }));

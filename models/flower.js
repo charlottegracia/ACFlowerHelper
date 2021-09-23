@@ -39,11 +39,13 @@ class Flower {
                 .min(1)
                 .max(100)
                 .allow(null),
-            breedingFlower1: Joi.string()
-                .max(50)
+            breedingFlower1: Joi.number()
+                .integer()
+                .min(1)
                 .allow(null),   // <-- need to allow null values for links
-            breedingFlower2: Joi.string()
-                .max(50)
+            breedingFlower2: Joi.number()
+                .integer()
+                .min(1)
                 .allow(null),
             note: Joi.string()
                 .max(255)
@@ -178,18 +180,7 @@ class Flower {
                     if (result.length == 0) throw { statusCode: 404, errorMessage: `Flower not found with provided flowerId: ${flowerId}` }
                     if (result.length > 1) throw { statusCode: 500, errorMessage: `Multiple hits of unique data. Corrupt database, flowerId: ${flowerId}` }
                     
-                    result.recordset.forEach(flower => {
-                        if (flower.flowerColor == null){
-                            console.log("id: " + flower.flowerId + ", " + flower.flowerType + ". Note: " + flower.note);
-                        } else if (flower.breedingFlower1 == null) {
-                            console.log("id: " + flower.flowerId + ", " + flower.flowerColor + " " + flower.flowerType + ". Note: " + flower.note);
-                        } else {
-                            console.log("id: " + flower.flowerId + ", " + flower.flowerColor + " " + flower.flowerType + ". Breeding flowers: " + flower.breedingFlower1 + " and " + flower.breedingFlower2);
-                        }
-                    })
-                    //console.log(result.recordset.flowerId + result.recordset.flowerColor + result.recordset.flowerType + ": " + result.recordset.note);
-                    
-                    resolve(result.recordset);
+                    resolve(result.recordset[0]);
                     /* const books = [];   // this is NOT validated yet
                     let lastBookIndex = -1;
                     result.recordset.forEach(record => {
@@ -439,6 +430,32 @@ class Flower {
                     })
 
                     resolve(result);
+
+                } catch (error) {
+                    reject(error);
+                }
+
+                sql.close();
+            })();
+        });
+    }
+
+    static findBreedingFlower(breedingFlowerId){
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    const pool = await sql.connect(con);
+                    const result = await pool.request()
+                    .input('breedingFlowerId', sql.Int(), breedingFlowerId)
+                    .query(`
+                        SELECT *
+                        FROM flowers
+                        WHERE flowers.flowerId = @breedingFlowerId
+                    `);
+
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: `Can't find flower with id ${breedingFlowerId}.` }
+                    
+                    resolve(result.recordset[0]);
 
                 } catch (error) {
                     reject(error);

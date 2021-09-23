@@ -12,7 +12,7 @@ router.get('/:userId', async (req, res) => {
         const flowerIdOnIsland = await Island.getFlowerIdOnIsland(req.params.userId);
         console.log(flowerIdOnIsland);
         let flowers = await Island.getFlowersOnIsland(flowerIdOnIsland);
-        return res.send(JSON.stringify(flowers));        
+        return res.send(JSON.stringify(flowers));
     } catch (err) {
         return res.status(500).send(JSON.stringify({ errorMessage: err }));
     }
