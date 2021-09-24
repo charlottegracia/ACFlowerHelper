@@ -177,7 +177,7 @@ class Account {
                     // and do nothing if 404 --> we are good, the user's email is not in the DB yet, can carry on with creating a new account
                     console.log(error);
                     if (!error.statusCode) reject(error);
-                    if (error.statusCode != 409) reject(error);
+                    if (error.statusCode != 404) reject(error);
 
                     // connect to DB
                     // make a query (INSERT INTO loginUser, SELECT with SCOPE_IDENTITY(), INSERT INTO loginPassword)
