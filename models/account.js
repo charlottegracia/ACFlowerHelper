@@ -133,9 +133,8 @@ class Account {
                         .query(`
                             SELECT u.userId, u.userName, u.islandName
                             FROM ACloginUser u
-                            WHERE u.userEmail = @userEmail
+                            WHERE u.userEmail = @userEmail 
                         `);
-                    console.log(result);
 
                     // error contains statusCode: 404 if not found! --> important in create(), see below
                     if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'User not found with provided credentials.' }
