@@ -180,7 +180,7 @@ class Account {
                     if (error.statusCode != 404) reject(error);
 
                     // connect to DB
-                    // make a query (INSERT INTO loginUser, SELECT with SCOPE_IDENTITY(), INSERT INTO loginPassword)
+                    // make a query (INSERT INTO ACloginUser, SELECT with SCOPE_IDENTITY(), INSERT INTO loginPassword)
                     // if good, we have the userId in the result
                     // check format (again, we dont have a validator for that at the moment)
                     // resolve with user
@@ -270,5 +270,4 @@ class Account {
     }
 }
 
-// previously module.exports = Login;
 module.exports = Account;

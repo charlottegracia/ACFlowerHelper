@@ -137,7 +137,7 @@ class Island {
                             WHERE f.FK_userId = @userId
                         `);
 
-                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'There are no flowers on this island.' }
+                    if (!result.recordset[0]) throw { statusCode: 404, errorMessage: 'There are no flowers on this island yet.' }
 
                     let flowers = [];
                     result.recordset.forEach(record => {
