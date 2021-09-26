@@ -15,7 +15,6 @@ class Account {
         this.islandName = accountObj.islandName;
     }
 
-    // static validate(accountObj)
     static validate(accountObj) {
         const schema = Joi.object({
             userEmail: Joi.string()
@@ -66,7 +65,7 @@ class Account {
                 // check if there was a result
                 // !!! -> check the hashed password with bcrypt!
                 // if yes -> check format
-                //  if format OK -> resolve
+                // if format OK -> resolve
                 // if no in any case, then throw and error and reject with error
                 // CLOSE THE DB CONNECTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!! !!!
 
@@ -95,9 +94,7 @@ class Account {
                         islandName: result.recordset[0].islandName
                     }
                     // check if the format is correct!
-                    // will need a proper validate method for that
 
-                    // *** static validateResponse(accountResponse)
                     const { error } = Account.validateResponse(accountResponse);
                     if (error) throw { statusCode: 500, errorMessage: 'Corrupt user account information in database.' }
 
@@ -113,7 +110,6 @@ class Account {
         });
     }
 
-    // *** NEW static method readByEmail(accountObj)
     static readByEmail(accountObj) {
         return new Promise((resolve, reject) => {
             (async () => {

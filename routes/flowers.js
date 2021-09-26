@@ -3,19 +3,10 @@ const express = require('express');
 const router = express.Router();
 
 const Flower = require('../models/flower');
-//const Author = require('../models/author');
 
-// få alle blomster
+// get all flowers
 router.get('/', async (req, res) => {
-    // need to call the Book class for DB access...
-    /* let authorid;
-    if (req.query.author) {
-        authorid = parseInt(req.query.author);
-        if (!authorid) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: ?author= should refer an author id (integer)' }));
-    } */
-
     try {
-        //const flowers = await Flower.readAll(authorid);
         const flowers = await Flower.getAll();
         return res.send(JSON.stringify(flowers));
     } catch (err) {
@@ -23,10 +14,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// få en bestemt blomst ud fra id
+// get specific flower from ID
 router.get('/:flowerId', async (req, res) => {
-    // › › validate req.params.bookid as bookid
-    // › › call await Book.readById(req.params.bookid)
     const {error} = Flower.validate(req.params);
     if (error) return res.status(400).send(JSON.stringify({ errorMessage: 'Bad request: flowerId has to be an integer', errorDetail: error.details[0].message }));
 

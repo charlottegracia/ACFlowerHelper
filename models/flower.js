@@ -32,7 +32,7 @@ class Flower {
             breedingFlower1: Joi.number()
                 .integer()
                 .min(1)
-                .allow(null),   // <-- need to allow null values for links
+                .allow(null),   
             breedingFlower2: Joi.number()
                 .integer()
                 .min(1)
@@ -48,11 +48,6 @@ class Flower {
     static readById(flowerId) {
         return new Promise((resolve, reject) => {
             (async () => {
-                // › › connect to DB
-                // › › query DB (SELECT Book JOIN BookAuthor JOIN Author WHERE bookid)
-                // › › restructure DB result into the object structure needed (JOIN --> watch out for duplicates)
-                // › › validate objects
-                // › › close DB connection
 
                 try {
                     const pool = await sql.connect(con);

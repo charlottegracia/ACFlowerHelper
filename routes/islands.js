@@ -5,7 +5,7 @@ const router = express.Router();
 const Island = require('../models/island');
 const Account = require('../models/account');
 
-// tjek din ø
+// check which flowers are on island
 router.get('/:userId', async (req, res) => {
     try {
         await Account.checkUser(req.params.userId);
@@ -19,7 +19,7 @@ router.get('/:userId', async (req, res) => {
     
 });
 
-// tilføj til din ø
+// add flower to island
 router.post('/', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     try {
@@ -39,6 +39,7 @@ router.post('/', async (req, res) => {
     }
 });
 
+// remove flower from island
 router.post('/remove', async (req, res) => {
     try {
         const { error } = Island.validate(req.body);
