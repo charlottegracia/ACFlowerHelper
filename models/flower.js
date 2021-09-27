@@ -85,37 +85,6 @@ class Flower {
         });
     }
 
-    static delete(bookid) {
-        return new Promise((resolve, reject) => {
-            (async () => {
-                try {
-                    const book = await Book.readById(bookid);
-
-                    const pool = await sql.connect(con);
-                    const result = await pool.request()
-                    .input('bookid', sql.Int(), bookid)
-                    .query(`
-                        DELETE liloBookAuthor
-                        WHERE FK_bookid = @bookid;
-
-                        DELETE liloLoan
-                        WHERE FK_bookid = @bookid;
-
-                        DELETE liloBook
-                        WHERE bookid = @bookid
-                    `);
-
-                    resolve(book);
-
-                } catch (error) {
-                    reject(error);
-                }
-
-                sql.close();
-            })();
-        });
-    }
-
     static getAll(){
         return new Promise((resolve, reject) => {
             (async () => {
