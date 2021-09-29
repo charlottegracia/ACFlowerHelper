@@ -4,10 +4,13 @@ const router = express.Router();
 
 const Island = require('../models/island');
 const Account = require('../models/account');
+const auth = require('../middleware/authenticate');
 
 // check which flowers are on island
 router.get('/:userId', async (req, res) => {
     try {
+        auth(req, res);
+
         await Account.checkUser(req.params.userId);
         const flowerIdOnIsland = await Island.getFlowerIdOnIsland(req.params.userId);
         console.log(flowerIdOnIsland);
@@ -16,13 +19,14 @@ router.get('/:userId', async (req, res) => {
     } catch (err) {
         return res.status(500).send(JSON.stringify({ errorMessage: err }));
     }
-    
 });
 
 // add flower to island
 router.post('/', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     try {
+        auth(req, res);
+
         const { error } = Island.validate(req.body);
         if (error) throw { statusCode: 400, errorMessage: error };
 
@@ -42,6 +46,8 @@ router.post('/', async (req, res) => {
 // remove flower from island
 router.post('/remove', async (req, res) => {
     try {
+        auth(req, res);
+
         const { error } = Island.validate(req.body);
         if (error) throw { statusCode: 400, errorMessage: error };
 
@@ -56,8 +62,7 @@ router.post('/remove', async (req, res) => {
         if (err.statusCode != 400) return res.status(err.statusCode).send(JSON.stringify({ errorMessage: err }));
         return res.status(400).send(JSON.stringify({ errorMessage: err.errorMessage.details[0].message }));
     }
-
-})
+});
 
 
 module.exports = router;

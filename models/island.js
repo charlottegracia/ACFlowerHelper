@@ -83,7 +83,6 @@ class Island {
         return new Promise((resolve, reject) => {
             (async () => {
                 try {
-
                     const pool = await sql.connect(con);
                     const result = await pool.request()
                         .input('userId', sql.Int(), islandFlowerObj.userId)

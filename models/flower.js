@@ -157,7 +157,6 @@ class Flower {
             })();
         });
     }
-
 }
 
 module.exports = Flower;
