@@ -11,10 +11,7 @@ module.exports = async (req, res) => {
     // return res.status(400).send(JSON.stringify({errorMessage: 'Invalid token.'}));
 
     try {
-        console.log(token);
-        const decodedToken = await jwt.verify(token, secret);
-        console.log(decodedToken);
-        req.account = decodedToken;
+        jwt.verify(token, secret);
     } catch (error) {
         return res.status(400).send(JSON.stringify({errorMessage: 'Invalid token.'}));
     }
